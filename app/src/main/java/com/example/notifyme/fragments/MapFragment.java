@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
@@ -28,11 +29,18 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.directions.route.AbstractRouting;
+import com.directions.route.Route;
+import com.directions.route.RouteException;
+import com.directions.route.Routing;
+import com.directions.route.RoutingListener;
 import com.example.notifyme.R;
 import com.example.notifyme.adapters.MapInfoWindowAdapter;
+import com.example.notifyme.mapUtils.MapDirection;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -43,6 +51,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -50,13 +60,16 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
+import org.w3c.dom.Document;
+
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback {
+public class MapFragment extends Fragment implements OnMapReadyCallback, RoutingListener {
 
     View view;
     GoogleMap map;
@@ -90,6 +103,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         return;
                     }
                     isJourneyOn = true;
+//                    drawDirectionPath();
+                    drawPath();
                     buttonStart.setText("Stop (" + String.valueOf(new DecimalFormat("##.##").format(CalculationByDistance(startPoint, endPoint))) + " KM)");
                 }
                 else{
@@ -119,6 +134,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
 
         return view;
+    }
+
+    private void drawPath() {
+        Routing routing = new Routing.Builder()
+                .travelMode(AbstractRouting.TravelMode.DRIVING)
+                .withListener(this)
+                .waypoints(new LatLng(startPoint.latitude, startPoint.longitude), endPoint)
+                .key(getString(R.string.apiKey))
+                .build();
+        routing.execute();
+    }
+
+    private void drawDirectionPath() {
+        MapDirection md = new MapDirection();
+        Document doc = md.getDocument(startPoint, endPoint,
+                MapDirection.MODE_DRIVING);
+
+        ArrayList<LatLng> directionPoint = md.getDirection(doc);
+        PolylineOptions rectLine = new PolylineOptions().width(3).color(
+                Color.RED);
+
+        for (int i = 0; i < directionPoint.size(); i++) {
+            rectLine.add(directionPoint.get(i));
+        }
+        Polyline polyline = map.addPolyline(rectLine);
     }
 
     private void showPlacePickerDialog() {
@@ -293,6 +333,52 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         return Radius * c;
     }
-    
 
+
+    @Override
+    public void onRoutingFailure(RouteException e) {
+        Log.e("check", e.getMessage());
+    }
+
+    @Override
+    public void onRoutingStart() {
+        Log.e("check", "onRoutingStart");
+
+    }
+
+    @Override
+    public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex) {
+        Log.e("check", "onRoutingSuccess");
+        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(startPoint.latitude,startPoint.longitude));
+        CameraUpdate zoom = CameraUpdateFactory.zoomTo(16);
+        List<Polyline> polylines = new ArrayList<>();
+
+        map.moveCamera(center);
+
+
+        if (polylines.size() > 0) {
+            for (Polyline poly : polylines) {
+                poly.remove();
+            }
+        }
+
+        polylines = new ArrayList<>();
+        //add route(s) to the map.
+        for (int i = 0; i < route.size(); i++) {
+
+            //In case of more than 5 alternative routes
+
+            PolylineOptions polyOptions = new PolylineOptions();
+            polyOptions.color(getResources().getColor(R.color.red));
+            polyOptions.width(10 + i * 3);
+            polyOptions.addAll(route.get(i).getPoints());
+            Polyline polyline = map.addPolyline(polyOptions);
+            polylines.add(polyline);
+        }
+    }
+
+    @Override
+    public void onRoutingCancelled() {
+        Log.e("check", "onRoutingCancelled");
+    }
 }
