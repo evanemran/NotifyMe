@@ -58,10 +58,7 @@
 
             <TextView
                 android:id="@+id/textView_my_location"
-                android:singleLine="true"
-                android:ellipsize="marquee"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:scrollHorizontally="true"
+                android:maxLines="2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="8dp"
@@ -76,10 +73,9 @@
         android:id="@+id/destinationLocationContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@+id/buttonStart"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="24dp"
         app:cardBackgroundColor="@color/black"
         app:cardCornerRadius="16dp"
         app:cardElevation="8dp">
@@ -109,11 +105,27 @@
                 android:layout_height="match_parent"
                 android:layout_marginStart="8dp"
                 android:hint="Your Destination"
+                android:maxLines="2"
                 android:gravity="center_vertical"
                 android:textColor="@color/grey_lite"
                 android:textColorHint="@color/grey_lite" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
+    <Button
+        android:id="@+id/buttonStart"
+        android:text="Start Journey"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="24dp"
+        android:textSize="20sp"
+        android:background="@drawable/rounded_button"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"/>
 
 
 </RelativeLayout>

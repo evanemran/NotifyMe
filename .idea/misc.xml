@@ -4,9 +4,12 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/NotifyMe/app/src/main/res/drawable/ic_home.xml" value="0.1" />
+        <entry key="..\:/NotifyMe/app/src/main/res/drawable/ic_marker.xml" value="0.1" />
+        <entry key="..\:/NotifyMe/app/src/main/res/drawable/rounded_button.xml" value="0.1" />
         <entry key="..\:/NotifyMe/app/src/main/res/layout/activity_main.xml" value="0.18" />
         <entry key="..\:/NotifyMe/app/src/main/res/layout/fragment_map.xml" value="0.21" />
         <entry key="..\:/NotifyMe/app/src/main/res/layout/fragment_places.xml" value="0.1" />
+        <entry key="..\:/NotifyMe/app/src/main/res/layout/info_window.xml" value="0.25" />
         <entry key="..\:/NotifyMe/app/src/main/res/layout/list_drawer.xml" value="0.17" />
         <entry key="..\:/NotifyMe/app/src/main/res/layout/nav_header.xml" value="0.10597826086956522" />
       </map>

@@ -4,8 +4,12 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -20,9 +24,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.notifyme.R;
+import com.example.notifyme.adapters.MapInfoWindowAdapter;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -30,9 +36,12 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -156,6 +165,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,16));
                             textView_my_location.setText(getAddress(location.getLatitude(), location.getLongitude()));
                             textView_my_location.setSelected(true);
+
+                            map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                                @Override
+                                public void onMapClick(@NonNull LatLng latLng) {
+                                    MarkerOptions markerOptions = new MarkerOptions();
+                                    markerOptions.position(latLng);
+                                    markerOptions.icon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_marker));
+                                    markerOptions.title(getAddress(latLng.latitude, latLng.longitude));
+                                    map.clear();
+                                    map.addMarker(markerOptions);
+                                    map.setInfoWindowAdapter(new MapInfoWindowAdapter(getContext()));
+                                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,16));
+                                    textView_destination.setText(getAddress(latLng.latitude, latLng.longitude));
+                                }
+                            });
                         }
 
                     }
@@ -199,6 +223,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
 
         return address;
+    }
+
+    private BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId)
+    {
+        Drawable vectorDrawable= ContextCompat.getDrawable(context, vectorResId);
+        vectorDrawable.setBounds(0,0,vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),vectorDrawable.getIntrinsicHeight(),Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+
     }
     
 
