@@ -3,6 +3,8 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Android_Projects/NotifyMe/app/src/main/res/drawable/ic_marker.xml" value="0.1655" />
+        <entry key="..\:/Android_Projects/NotifyMe/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1655" />
         <entry key="..\:/NotifyMe/app/src/main/res/drawable/ic_home.xml" value="0.1" />
         <entry key="..\:/NotifyMe/app/src/main/res/drawable/ic_marker.xml" value="0.1" />
         <entry key="..\:/NotifyMe/app/src/main/res/drawable/rounded_button.xml" value="0.1" />
