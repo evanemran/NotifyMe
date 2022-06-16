@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,6 +51,7 @@ import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -62,8 +64,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private FusedLocationProviderClient client;
     private Marker MyMarker;
     TextView textView_my_location, textView_destination;
+    Button buttonStart;
 
     private static final String TAGG = "PLACE";
+
+    LatLng startPoint = null;
+    LatLng endPoint = null;
+    boolean isJourneyOn = false;
 
     @Nullable
     @Override
@@ -72,6 +79,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         textView_my_location = view.findViewById(R.id.textView_my_location);
         textView_destination = view.findViewById(R.id.textView_destination);
+        buttonStart = view.findViewById(R.id.buttonStart);
+
+        buttonStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!isJourneyOn){
+                    if (startPoint == null || endPoint == null){
+                        Toast.makeText(getContext(), "Choose your destination!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    isJourneyOn = true;
+                    buttonStart.setText("Stop (" + String.valueOf(new DecimalFormat("##.##").format(CalculationByDistance(startPoint, endPoint))) + " KM)");
+                }
+                else{
+                    isJourneyOn = false;
+                    map.clear();
+                    endPoint = null;
+                    buttonStart.setText("Start Journey");
+                }
+
+            }
+        });
 
         showPlacePickerDialog();
 
@@ -162,6 +191,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             }
                             googleMap.setMyLocationEnabled(true);
                             final LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
+                            startPoint = latLng;
                             map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,16));
                             textView_my_location.setText(getAddress(location.getLatitude(), location.getLongitude()));
                             textView_my_location.setSelected(true);
@@ -169,6 +199,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                                 @Override
                                 public void onMapClick(@NonNull LatLng latLng) {
+                                    endPoint = latLng;
                                     MarkerOptions markerOptions = new MarkerOptions();
                                     markerOptions.position(latLng);
                                     markerOptions.icon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_marker));
@@ -178,6 +209,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                     map.setInfoWindowAdapter(new MapInfoWindowAdapter(getContext()));
                                     map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,16));
                                     textView_destination.setText(getAddress(latLng.latitude, latLng.longitude));
+
+
                                 }
                             });
                         }
@@ -234,6 +267,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         vectorDrawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
 
+    }
+
+    public double CalculationByDistance(LatLng StartP, LatLng EndP) {
+        int Radius = 6371;// radius of earth in Km
+        double lat1 = StartP.latitude;
+        double lat2 = EndP.latitude;
+        double lon1 = StartP.longitude;
+        double lon2 = EndP.longitude;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1))
+                * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2)
+                * Math.sin(dLon / 2);
+        double c = 2 * Math.asin(Math.sqrt(a));
+        double valueResult = Radius * c;
+        double km = valueResult / 1;
+        DecimalFormat newFormat = new DecimalFormat("####");
+        int kmInDec = Integer.valueOf(newFormat.format(km));
+        double meter = valueResult % 1000;
+        int meterInDec = Integer.valueOf(newFormat.format(meter));
+        Log.i("Radius Value", "" + valueResult + "   KM  " + kmInDec
+                + " Meter   " + meterInDec);
+
+        return Radius * c;
     }
     
 
