@@ -10,6 +10,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <fragment android:id="@+id/autocomplete_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+        />
+
+    <!--<androidx.appcompat.widget.SearchView
+        android:id="@+id/searchView_location"
+        android:background="@color/grey_lite"
+        app:searchHintIcon="@drawable/ic_search"
+        app:iconifiedByDefault="false"
+        app:searchIcon="@drawable/ic_search"
+        app:queryHint="Search destination"
+        android:layout_margin="16dp"
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"/>-->
+
     <androidx.cardview.widget.CardView
         android:id="@+id/ownLocationContainer"
         android:layout_width="match_parent"
@@ -86,6 +104,7 @@
                 android:background="@color/grey_lite" />
 
             <TextView
+                android:id="@+id/textView_destination"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="8dp"

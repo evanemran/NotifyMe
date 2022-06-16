@@ -23,6 +23,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.notifyme.R;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -33,8 +34,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -45,7 +52,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     SupportMapFragment mapFragment;
     private FusedLocationProviderClient client;
     private Marker MyMarker;
-    TextView textView_my_location;
+    TextView textView_my_location, textView_destination;
+
+    private static final String TAGG = "PLACE";
 
     @Nullable
     @Override
@@ -53,6 +62,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         view = inflater.inflate(R.layout.fragment_map, container, false);
 
         textView_my_location = view.findViewById(R.id.textView_my_location);
+        textView_destination = view.findViewById(R.id.textView_destination);
+
+        showPlacePickerDialog();
 
         requestPermission();
 
@@ -61,7 +73,50 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        textView_destination.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                showPlacePickerDialog();
+            }
+        });
+
         return view;
+    }
+
+    private void showPlacePickerDialog() {
+        if (!Places.isInitialized()) {
+            Places.initialize(getActivity().getApplicationContext(), getContext().getString(R.string.apiKey), Locale.US);
+        }
+
+        PlacesClient placesClient = Places.createClient(getContext());
+
+
+
+        // Initialize the AutocompleteSupportFragment.
+        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
+                this.getChildFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+
+        // Specify the types of place data to return.
+        if (autocompleteFragment!=null){
+            autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
+        }
+        else Toast.makeText(getContext(), "Places is null", Toast.LENGTH_SHORT).show();
+
+        // Set up a PlaceSelectionListener to handle the response.
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(@NonNull Place place) {
+                // TODO: Get info about the selected place.
+                Log.i(TAGG, "Place: " + place.getName() + ", " + place.getId());
+            }
+
+
+            @Override
+            public void onError(@NonNull Status status) {
+                // TODO: Handle the error.
+                Log.i(TAGG, "An error occurred: " + status);
+            }
+        });
     }
 
     @Override
@@ -145,4 +200,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         return address;
     }
+    
+
 }

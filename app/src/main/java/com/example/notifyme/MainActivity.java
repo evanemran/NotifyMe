@@ -31,6 +31,7 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 import com.example.notifyme.adapters.DrawerAdapter;
 import com.example.notifyme.fragments.MapFragment;
+import com.example.notifyme.fragments.PlaceSearchFragment;
 import com.example.notifyme.listeners.NavMenuClickListener;
 import com.example.notifyme.models.NavMenu;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -130,6 +131,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             switch (menu.getStringId()){
                 case R.string.home:
                     loadFragment(new MapFragment());
+                    break;
+                case R.string.settings:
+                    loadFragment(new PlaceSearchFragment());
                     break;
                 default:
                     Toast.makeText(MainActivity.this, "Will be added soon!", Toast.LENGTH_SHORT).show();
